@@ -1,0 +1,299 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Admin kullanıcıları
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Custom fiyat tanımları (formüller)
+model CustomPrice {
+  id          Int      @id @default(autoincrement())
+  name        String
+  code        String
+  category    String   @default("altin")
+  priceTable  String   @default("primary") // primary = VPS, fallback = Yedek kaynak
+
+  // Alış konfigürasyonu
+  alisSourceCode  String
+  alisSourceField String   @default("alis") // alis veya satis - kaynaktan hangi fiyat kullanılacak
+  alisMultiplier  Float    @default(1.0)
+  alisAddition    Float    @default(0.0)
+
+  // Satış konfigürasyonu
+  satisSourceCode String
+  satisSourceField String  @default("satis") // alis veya satis - kaynaktan hangi fiyat kullanılacak
+  satisMultiplier Float    @default(1.0)
+  satisAddition   Float    @default(0.0)
+
+  order      Int      @default(0)
+  decimals   Int      @default(2)
+  isVisible  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([code, priceTable])
+}
+
+// Kaynak fiyatlar (VPS'ten veya yedek kaynaktan gelen ham fiyatlar)
+model SourcePrice {
+  id         Int      @id @default(autoincrement())
+  code       String
+  name       String
+  alis       Float
+  satis      Float
+  high       Float?
+  low        Float?
+  change     Float?
+  changeRate Float?
+  source     String   @default("primary") // primary, fallback
+  timestamp  DateTime @default(now())
+
+  @@unique([code, source])
+}
+
+// Hesaplanmış ve cache'lenmiş fiyatlar
+model CachedPrice {
+  id            Int      @id @default(autoincrement())
+  code          String   @unique
+  name          String
+  alis          Float
+  satis         Float
+  fark          Float    @default(0)
+  farkOran      Float    @default(0)
+  direction     String   @default("same") // up, down, same
+  timestamp     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  // Günlük en yüksek/en düşük - Alış fiyatı
+  dailyHighAlis     Float?   // Günün en yüksek alış fiyatı
+  dailyLowAlis      Float?   // Günün en düşük alış fiyatı
+  dailyHighAlisTime DateTime? // En yüksek alış fiyatının zamanı
+  dailyLowAlisTime  DateTime? // En düşük alış fiyatının zamanı
+  // Günlük en yüksek/en düşük - Satış fiyatı
+  dailyHighSatis     Float?   // Günün en yüksek satış fiyatı
+  dailyLowSatis      Float?   // Günün en düşük satış fiyatı
+  dailyHighSatisTime DateTime? // En yüksek satış fiyatının zamanı
+  dailyLowSatisTime  DateTime? // En düşük satış fiyatının zamanı
+  // Geriye uyumluluk için eski alanlar (deprecated)
+  dailyHigh     Float?
+  dailyLow      Float?
+  dailyHighTime DateTime?
+  dailyLowTime  DateTime?
+  lastResetDate DateTime? // Son sıfırlama tarihi (gece yarısı)
+}
+
+// Fiyat kaynağı yönetimi
+model PriceSourceConfig {
+  id              Int      @id @default(autoincrement())
+  activeSource    String   @default("primary") // primary, fallback
+  autoFallback    Boolean  @default(true)
+  fallbackTimeout Int      @default(60) // saniye cinsinden
+  lastPrimaryPing DateTime?
+  lastFallbackPing DateTime?
+  primaryStatus   String   @default("unknown") // active, error, unknown
+  fallbackStatus  String   @default("unknown")
+  updatedAt       DateTime @updatedAt
+}
+
+// Site ayarları
+model Settings {
+  id                Int      @id @default(autoincrement())
+  key               String   @unique
+  value             String   @db.LongText
+  updatedAt         DateTime @updatedAt
+}
+
+// SEO ayarları
+model Seo {
+  id                     Int      @id @default(autoincrement())
+  siteTitle              String   @default("Aka Kuyumculuk - Güncel Altın Fiyatları")
+  siteDescription        String   @db.Text
+  siteKeywords           String   @db.Text
+  ogImage                String?  @db.Text
+  canonicalUrl           String?
+  googleAnalyticsId      String?
+  googleTagManagerId     String?
+  metaPixelId            String?
+  googleSiteVerification String?
+  bingSiteVerification   String?
+  headScripts            String?  @db.LongText
+  bodyStartScripts       String?  @db.LongText
+  bodyEndScripts         String?  @db.LongText
+  updatedAt              DateTime @updatedAt
+}
+
+// Makaleler
+model Article {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  content     String   @db.LongText
+  excerpt     String?  @db.Text
+  coverImage  String?  @db.Text
+  isPublished Boolean  @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Şubeler
+model Branch {
+  id           Int      @id @default(autoincrement())
+  name         String
+  address      String   @db.Text
+  phone        String?
+  phone2       String?
+  email        String?
+  mapUrl       String?  @db.Text
+  mapEmbed     String?  @db.Text
+  workingHours String?  @db.Text
+  isMain       Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Aile kartları / Referanslar
+model FamilyCard {
+  id        Int      @id @default(autoincrement())
+  title     String
+  subtitle  String?
+  image     String?  @db.Text
+  link      String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Yasal sayfalar (Gizlilik, Kullanım Koşulları vb.)
+model LegalPage {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  title     String
+  content   String   @db.LongText
+  updatedAt DateTime @updatedAt
+}
+
+// Kampanyalar
+model Campaign {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  description String   @db.Text // Kısa açıklama (liste için)
+  content     String   @db.LongText // Detaylı içerik (HTML)
+  coverImage  String?  @db.Text // Hero görseli
+  icon        String?  // Lucide icon adı (örn: "Gift", "Star")
+  badgeText   String?  // Rozet metni (örn: "Yeni", "Popüler")
+  badgeColor  String?  @default("gold") // Rozet rengi
+  features    String?  @db.LongText // JSON array - Avantajlar listesi
+  steps       String?  @db.LongText // JSON array - Nasıl çalışır adımları
+  buttonText  String?  @default("Detaylı Bilgi")
+  buttonLink  String?  // Harici link (opsiyonel)
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Mobil uygulama müşterileri
+model Customer {
+  id             Int      @id @default(autoincrement())
+  phone          String   @unique
+  name           String
+  email          String?
+  role           String   @default("customer") // customer veya admin
+  personalQRCode String?  @unique // Müşterinin kişisel QR kodu
+  totalPoints    Int      @default(0) // Toplam kazanılan puan
+  usedPoints     Int      @default(0) // Kullanılan puan
+  pushToken      String?  // Expo push notification token
+  isActive       Boolean  @default(true)
+  lastLoginAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  qrCodes        QRCode[]
+  createdQRCodes QRCode[] @relation("QRCodeCreator")
+  transactions   Transaction[]
+  alerts         PriceAlert[]
+}
+
+// QR Kodlar - Puan kazanma ve harcama için
+model QRCode {
+  id                 Int       @id @default(autoincrement())
+  code               String    @unique // Benzersiz QR kod
+  type               String    @default("earn") // earn: puan kazanma, spend: puan harcama
+  customerId         Int?      // Opsiyonel - müşteri tarafından kullanıldığında bağlanır
+  creatorId          Int?      // QR'ı oluşturan (spend için müşteri ID)
+  categoryId         Int?      // Tek kategori (geriye uyumluluk)
+  categoryBreakdown  String?   @db.LongText // JSON: [{categoryId, categoryName, amount, points}]
+  points             Int       @default(0) // Toplam puan (tüm kategorilerin toplamı)
+  amount             Float?    // Toplam alışveriş tutarı
+  description        String?   // Açıklama (ör: "22 Ayar Bilezik")
+  isUsed             Boolean   @default(false)
+  usedAt             DateTime?
+  expiresAt          DateTime  // Son kullanma tarihi (1 dakika)
+  createdBy          String?   // Oluşturan personel (admin kullanıcı adı)
+  createdAt          DateTime  @default(now())
+
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  creator     Customer? @relation("QRCodeCreator", fields: [creatorId], references: [id])
+  category    Category? @relation(fields: [categoryId], references: [id])
+}
+
+// İşlem geçmişi
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  customerId  Int
+  type        String   // purchase, points_earned, points_used, bonus
+  amount      Float?   // İşlem tutarı (TL)
+  points      Int      @default(0) // İşlemdeki puan (+/-)
+  description String?  // Açıklama
+  qrCodeId    Int?     // İlişkili QR kod
+  createdAt   DateTime @default(now())
+
+  customer    Customer @relation(fields: [customerId], references: [id])
+}
+
+// Puan kategorileri
+model Category {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique  // "Genel", "22 Ayar Bilezik", "Pırlanta"
+  tlPerPoint Float              // 1000 = 1000 TL'ye 1 puan, 500 = 500 TL'ye 1 puan
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  qrCodes    QRCode[]
+}
+
+// Fiyat alarmları
+model PriceAlert {
+  id          Int       @id @default(autoincrement())
+  customerId  Int
+  priceCode   String    // "ALTIN", "USD", "EUR"
+  priceName   String    // "Gram Altın", "Amerikan Doları"
+  alertType   String    // "above" veya "below"
+  targetPrice Float     // Hedef fiyat
+  priceField  String    @default("satis") // "alis" veya "satis"
+  isActive    Boolean   @default(true)
+  triggeredAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  customer    Customer  @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@index([isActive, priceCode])
+}
