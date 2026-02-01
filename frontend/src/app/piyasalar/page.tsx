@@ -216,10 +216,16 @@ interface PriceDetail {
   fark: number;
   farkOran: number;
   direction: 'up' | 'down' | 'same';
-  dailyHigh: number | null;
-  dailyLow: number | null;
-  dailyHighTime: string | null;
-  dailyLowTime: string | null;
+  // Alış high/low
+  dailyHighAlis: number | null;
+  dailyLowAlis: number | null;
+  dailyHighAlisTime: string | null;
+  dailyLowAlisTime: string | null;
+  // Satış high/low
+  dailyHighSatis: number | null;
+  dailyLowSatis: number | null;
+  dailyHighSatisTime: string | null;
+  dailyLowSatisTime: string | null;
   timestamp: string;
 }
 
@@ -282,14 +288,6 @@ function PriceDetailModal({
   // Use live price for current values
   const displayPrice = livePrice || detail;
   const direction = displayPrice?.direction || 'same';
-
-  // Calculate position on range bar
-  const calculateRangePosition = () => {
-    if (!detail?.dailyHigh || !detail?.dailyLow || !displayPrice) return 50;
-    const range = detail.dailyHigh - detail.dailyLow;
-    if (range === 0) return 50;
-    return Math.min(100, Math.max(0, ((displayPrice.satis - detail.dailyLow) / range) * 100));
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
@@ -372,59 +370,82 @@ function PriceDetailModal({
                 </span>
               </div>
 
-              {/* Daily High/Low */}
-              <div className="bg-gray-50 rounded-xl p-4">
-                <h4 className="text-center font-semibold text-gray-900 mb-4">
-                  Günün En Yüksek / En Düşük
+              {/* Daily High/Low - Alış */}
+              <div className="bg-blue-50 rounded-xl p-4">
+                <h4 className="text-center font-semibold text-blue-900 mb-4">
+                  Alış - Günün En Yüksek / En Düşük
                 </h4>
 
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  {/* Daily High */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Daily High Alis */}
                   <div className="text-center">
                     <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-green-100 flex items-center justify-center">
                       <ArrowUp className="h-5 w-5 text-green-600" />
                     </div>
                     <p className="text-xs text-gray-500 mb-1">En Yüksek</p>
                     <p className="text-lg font-bold text-green-600">
-                      {detail?.dailyHigh ? formatPrice(detail.dailyHigh) : '-'}
+                      {detail?.dailyHighAlis ? formatPrice(detail.dailyHighAlis) : '-'}
                     </p>
                     <p className="text-xs text-gray-400 flex items-center justify-center gap-1 mt-1">
                       <Clock className="h-3 w-3" />
-                      {formatTime(detail?.dailyHighTime || null)}
+                      {formatTime(detail?.dailyHighAlisTime || null)}
                     </p>
                   </div>
 
-                  {/* Daily Low */}
+                  {/* Daily Low Alis */}
                   <div className="text-center">
                     <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-red-100 flex items-center justify-center">
                       <ArrowDown className="h-5 w-5 text-red-600" />
                     </div>
                     <p className="text-xs text-gray-500 mb-1">En Düşük</p>
                     <p className="text-lg font-bold text-red-600">
-                      {detail?.dailyLow ? formatPrice(detail.dailyLow) : '-'}
+                      {detail?.dailyLowAlis ? formatPrice(detail.dailyLowAlis) : '-'}
                     </p>
                     <p className="text-xs text-gray-400 flex items-center justify-center gap-1 mt-1">
                       <Clock className="h-3 w-3" />
-                      {formatTime(detail?.dailyLowTime || null)}
+                      {formatTime(detail?.dailyLowAlisTime || null)}
                     </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Range Bar */}
-                {detail?.dailyHigh && detail?.dailyLow && (
-                  <div className="mt-4">
-                    <div className="relative h-2 bg-gradient-to-r from-red-200 via-gray-200 to-green-200 rounded-full">
-                      <div
-                        className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-amber-500 rounded-full border-2 border-white shadow-md"
-                        style={{ left: `calc(${calculateRangePosition()}% - 8px)` }}
-                      />
+              {/* Daily High/Low - Satış */}
+              <div className="bg-amber-50 rounded-xl p-4">
+                <h4 className="text-center font-semibold text-amber-900 mb-4">
+                  Satış - Günün En Yüksek / En Düşük
+                </h4>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Daily High Satis */}
+                  <div className="text-center">
+                    <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-green-100 flex items-center justify-center">
+                      <ArrowUp className="h-5 w-5 text-green-600" />
                     </div>
-                    <div className="flex justify-between mt-2 text-xs text-gray-500">
-                      <span>Düşük</span>
-                      <span>Yüksek</span>
-                    </div>
+                    <p className="text-xs text-gray-500 mb-1">En Yüksek</p>
+                    <p className="text-lg font-bold text-green-600">
+                      {detail?.dailyHighSatis ? formatPrice(detail.dailyHighSatis) : '-'}
+                    </p>
+                    <p className="text-xs text-gray-400 flex items-center justify-center gap-1 mt-1">
+                      <Clock className="h-3 w-3" />
+                      {formatTime(detail?.dailyHighSatisTime || null)}
+                    </p>
                   </div>
-                )}
+
+                  {/* Daily Low Satis */}
+                  <div className="text-center">
+                    <div className="w-10 h-10 mx-auto mb-2 rounded-full bg-red-100 flex items-center justify-center">
+                      <ArrowDown className="h-5 w-5 text-red-600" />
+                    </div>
+                    <p className="text-xs text-gray-500 mb-1">En Düşük</p>
+                    <p className="text-lg font-bold text-red-600">
+                      {detail?.dailyLowSatis ? formatPrice(detail.dailyLowSatis) : '-'}
+                    </p>
+                    <p className="text-xs text-gray-400 flex items-center justify-center gap-1 mt-1">
+                      <Clock className="h-3 w-3" />
+                      {formatTime(detail?.dailyLowSatisTime || null)}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Info Note */}
@@ -473,7 +494,7 @@ export default function PiyasalarPage() {
       newFavorites.add(code);
     }
     setFavorites(newFavorites);
-    localStorage.setItem('favorites', JSON.stringify([...newFavorites]));
+    localStorage.setItem('favorites', JSON.stringify(Array.from(newFavorites)));
   };
 
   const handlePriceClick = useCallback((code: string) => {
@@ -631,7 +652,7 @@ export default function PiyasalarPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Canlı Piyasa Verileri</h1>
-              <p className="text-gray-500 text-sm mt-1">Altın ve döviz fiyatları anlık güncelleniyor</p>
+              <p className="text-gray-500 text-sm mt-1">Altın fiyatları anlık güncelleniyor</p>
             </div>
             <div className="flex items-center gap-3">
               <span className={cn(

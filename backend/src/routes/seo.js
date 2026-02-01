@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
       seo = await prisma.seo.create({
         data: {
           siteTitle: 'Aka Kuyumculuk - Güncel Altın Fiyatları',
-          siteDescription: 'Adana\'da güvenilir kuyumcu. Güncel altın, gümüş ve döviz fiyatları. Altın alış satış işlemleri.',
+          siteDescription: 'Adana\'da güvenilir kuyumcu. Güncel altın ve gümüş fiyatları. Altın alış satış işlemleri.',
           siteKeywords: 'altın fiyatları, kuyumcu, adana kuyumcu, altın alış, altın satış, gram altın, çeyrek altın'
         }
       });

@@ -281,13 +281,51 @@ export default function KampanyaDetailPage() {
 
         {/* Content Section */}
         {campaign.content && (
-          <section className="py-16 bg-white">
+          <section className="py-16 bg-gradient-to-b from-white to-gray-50">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto">
-                <div
-                  className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-gold-dark prose-strong:text-gray-900"
-                  dangerouslySetInnerHTML={{ __html: campaign.content }}
-                />
+                {/* Section Header */}
+                <div className="text-center mb-12">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-gold/10 rounded-full mb-4">
+                    <Sparkles className="h-4 w-4 text-gold" />
+                    <span className="text-sm font-medium text-gold-dark">Detaylı Bilgi</span>
+                  </div>
+                  <h2 className="text-3xl font-bold text-gray-900">Kampanya Detayları</h2>
+                </div>
+
+                {/* Styled Content Card */}
+                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                  <div className="p-8 md:p-10">
+                    <div
+                      className="prose prose-lg max-w-none
+                        prose-headings:text-gray-900 prose-headings:font-bold
+                        prose-h2:text-2xl prose-h2:mt-0 prose-h2:mb-4 prose-h2:pb-3 prose-h2:border-b prose-h2:border-gold/30
+                        prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3 prose-h3:flex prose-h3:items-center prose-h3:gap-2
+                        prose-h3:before:content-[''] prose-h3:before:w-1 prose-h3:before:h-6 prose-h3:before:bg-gold prose-h3:before:rounded-full
+                        prose-p:text-gray-600 prose-p:leading-relaxed
+                        prose-a:text-gold-dark prose-a:no-underline prose-a:hover:underline
+                        prose-strong:text-gold-dark prose-strong:font-semibold
+                        prose-ul:my-4 prose-ul:space-y-2
+                        prose-li:text-gray-600 prose-li:pl-2
+                        prose-li:marker:text-gold"
+                      dangerouslySetInnerHTML={{ __html: campaign.content }}
+                    />
+                  </div>
+                </div>
+
+                {/* Info Note */}
+                <div className="mt-8 flex items-start gap-4 p-6 bg-amber-50 rounded-xl border border-amber-200">
+                  <div className="p-2 bg-amber-100 rounded-lg shrink-0">
+                    <Award className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-amber-900 mb-1">Önemli Not</h4>
+                    <p className="text-amber-700 text-sm">
+                      Puan kazanmak ve kullanmak için Aka Kuyumculuk mobil uygulamasına üye olmanız gerekmektedir.
+                      Üyelik tamamen ücretsizdir.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </section>

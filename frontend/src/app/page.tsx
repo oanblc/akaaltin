@@ -40,8 +40,8 @@ export default function Home() {
                 </div>
 
                 <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-                  Anlık Altın ve Döviz
-                  <span className="block text-amber-600">Fiyatları</span>
+                  Güvenilir Altın
+                  <span className="block text-amber-600">Alışverişi</span>
                 </h1>
 
                 <p className="text-lg text-gray-600 leading-relaxed max-w-lg">
@@ -93,20 +93,8 @@ export default function Home() {
 
               {/* Right - Price Table */}
               <div className={`${isVisible ? 'animate-fade-in delay-200' : 'opacity-0'}`}>
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-4 bg-gray-50 border-b border-gray-200">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-amber-600" />
-                      <h2 className="font-semibold text-gray-900">Canlı Piyasa Verileri</h2>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                      Canlı
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <PriceTable />
-                  </div>
+                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden p-4">
+                  <PriceTable />
                 </div>
               </div>
             </div>
@@ -224,9 +212,9 @@ export default function Home() {
                 },
                 {
                   icon: TrendingUp,
-                  title: 'Döviz İşlemleri',
-                  description: 'USD, EUR ve diğer döviz alım satım hizmetleri',
-                  features: ['Güncel kurlar', 'Rekabetçi fiyat', 'Hızlı işlem']
+                  title: 'Gümüş İşlemleri',
+                  description: 'Gümüş alım satım ve yatırım hizmetleri',
+                  features: ['Anlık fiyatlar', 'Güvenli işlem', 'Uzman destek']
                 },
                 {
                   icon: Building2,
@@ -376,7 +364,7 @@ export default function Home() {
               {/* Right - Map */}
               <div className="h-[400px] rounded-xl overflow-hidden border border-gray-200">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3185.8661891805547!2d35.3195!3d36.9863!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzbCsDU5JzEwLjciTiAzNcKwMTknMTAuMiJF!5e0!3m2!1str!2str!4v1600000000000!5m2!1str!2str"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3184.3734959786416!2d35.29150597536171!3d37.04858175365966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x15288937b5e362d3%3A0xbd0bb5c9fad553a4!2sAka%20Kuyumculuk!5e0!3m2!1str!2str!4v1769729802820!5m2!1str!2str"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}

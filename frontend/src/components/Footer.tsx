@@ -192,16 +192,10 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-gray-200">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4">
             <p className="text-sm text-gray-500">
               © {new Date().getFullYear()} {settings.siteName}. Tüm hakları saklıdır.
             </p>
-            <div className="flex items-center gap-6 text-sm text-gray-500">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                Fiyatlar canlı güncelleniyor
-              </span>
-            </div>
           </div>
         </div>
       </div>

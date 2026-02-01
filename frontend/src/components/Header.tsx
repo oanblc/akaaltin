@@ -35,55 +35,52 @@ export default function Header() {
 
   return (
     <>
-      <header className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm'
-          : 'bg-white'
-      }`}>
-        {/* Top bar with contact info */}
-        <div className="hidden lg:block border-b border-gray-100">
-          <div className="container mx-auto px-4 py-2">
-            <div className="flex justify-between items-center text-sm">
-              <div className="flex items-center gap-6">
+      {/* Top bar with contact info - NOT sticky */}
+      <div className="hidden lg:block bg-white border-b border-gray-100">
+        <div className="container mx-auto px-4 py-2">
+          <div className="flex justify-between items-center text-sm">
+            <div className="flex items-center gap-6">
+              <a
+                href={`tel:${settings.contactPhone}`}
+                className="flex items-center gap-2 text-gray-600 hover:text-amber-600 transition-colors"
+              >
+                <Phone className="h-3.5 w-3.5" />
+                <span>{settings.contactPhone}</span>
+              </a>
+              {settings.contactPhone2 && (
                 <a
-                  href={`tel:${settings.contactPhone}`}
+                  href={`tel:${settings.contactPhone2}`}
                   className="flex items-center gap-2 text-gray-600 hover:text-amber-600 transition-colors"
                 >
                   <Phone className="h-3.5 w-3.5" />
-                  <span>{settings.contactPhone}</span>
+                  <span>{settings.contactPhone2}</span>
                 </a>
-                {settings.contactPhone2 && (
-                  <a
-                    href={`tel:${settings.contactPhone2}`}
-                    className="flex items-center gap-2 text-gray-600 hover:text-amber-600 transition-colors"
-                  >
-                    <Phone className="h-3.5 w-3.5" />
-                    <span>{settings.contactPhone2}</span>
-                  </a>
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-gray-500">
-                <Clock className="h-3.5 w-3.5" />
-                <span>{settings.workingHours}</span>
-              </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-gray-500">
+              <Clock className="h-3.5 w-3.5" />
+              <span>{settings.workingHours}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Main header */}
-        <div className="bg-amber-50/70">
-          <div className="container mx-auto px-4 flex items-center justify-between h-16 lg:h-18">
+      {/* Main header - STICKY */}
+      <header className={`sticky top-0 z-50 transition-all duration-300 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 ${
+        scrolled ? 'shadow-md' : ''
+      }`}>
+        <div className="container mx-auto px-4 flex items-center justify-between py-4">
             {/* Logo */}
             <Link href="/" className="flex items-center relative z-10">
               {settings.logoBase64 ? (
                 <img
                   src={settings.logoBase64}
                   alt={settings.siteName}
-                  style={{ height: settings.logoHeight || '48px', width: 'auto' }}
+                  style={{ height: settings.logoHeight ? `${settings.logoHeight}px` : '48px', width: 'auto' }}
                   className="object-contain"
                 />
               ) : (
-                <span className="text-xl font-bold text-gray-900">
+                <span className="text-xl font-bold text-white">
                   {settings.siteName}
                 </span>
               )}
@@ -101,8 +98,8 @@ export default function Header() {
                     href={link.href}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? 'text-amber-600 bg-amber-50'
-                        : 'text-gray-700 hover:text-amber-600 hover:bg-gray-50'
+                        ? 'text-white bg-white/20'
+                        : 'text-white/90 hover:text-white hover:bg-white/10'
                     }`}
                   >
                     {link.label}
@@ -115,7 +112,12 @@ export default function Header() {
             <div className="hidden lg:flex items-center gap-3">
               {settings.socialWhatsapp && (
                 <a
-                  href={`https://wa.me/${settings.socialWhatsapp.replace(/\D/g, '')}`}
+                  href={`https://wa.me/${(() => {
+                    let num = settings.socialWhatsapp.replace(/\D/g, '');
+                    if (num.startsWith('0')) num = '90' + num.slice(1);
+                    else if (!num.startsWith('90')) num = '90' + num;
+                    return num;
+                  })()}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-full transition-all duration-200 shadow-sm hover:shadow-md"
@@ -128,7 +130,7 @@ export default function Header() {
 
             {/* Mobile menu button */}
             <button
-              className="lg:hidden relative z-10 p-2 -mr-2 text-gray-700"
+              className="lg:hidden relative z-10 p-2 -mr-2 text-white"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? 'Menüyü kapat' : 'Menüyü aç'}
             >
@@ -138,7 +140,6 @@ export default function Header() {
                 <Menu className="h-6 w-6" />
               )}
             </button>
-          </div>
         </div>
       </header>
 
@@ -213,7 +214,12 @@ export default function Header() {
 
             {settings.socialWhatsapp && (
               <a
-                href={`https://wa.me/${settings.socialWhatsapp.replace(/\D/g, '')}`}
+                href={`https://wa.me/${(() => {
+                    let num = settings.socialWhatsapp.replace(/\D/g, '');
+                    if (num.startsWith('0')) num = '90' + num.slice(1);
+                    else if (!num.startsWith('90')) num = '90' + num;
+                    return num;
+                  })()}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-xl transition-all duration-200"

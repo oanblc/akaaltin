@@ -484,7 +484,6 @@ export default function AdminPricesPage() {
                   >
                     <option value="altin">Altın</option>
                     <option value="gumus">Gümüş</option>
-                    <option value="doviz">Döviz</option>
                     <option value="diger">Diğer</option>
                   </select>
                 </div>
