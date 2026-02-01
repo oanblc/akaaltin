@@ -34,24 +34,86 @@ AkaKuyumculuk/
 
 ---
 
-## Kurulum
+## Gerekli Bağımlılıklar
 
-### Gereksinimler
-- Node.js 18+
-- MySQL 8+
-- npm veya yarn
+### Sistem Gereksinimleri
 
-### 1. Backend Kurulumu
+| Yazılım | Minimum Versiyon | İndirme Linki |
+|---------|------------------|---------------|
+| Node.js | 18.0+ | https://nodejs.org |
+| npm | 9.0+ | Node.js ile birlikte gelir |
+| MySQL | 8.0+ | https://dev.mysql.com/downloads/ |
+| Git | 2.30+ | https://git-scm.com |
 
+### Mobile Geliştirme İçin Ek Gereksinimler
+
+| Yazılım | Açıklama | İndirme Linki |
+|---------|----------|---------------|
+| Expo CLI | React Native geliştirme | `npm install -g expo-cli` |
+| Expo Go (iOS) | Test için mobil uygulama | [App Store](https://apps.apple.com/app/expo-go/id982107779) |
+| Expo Go (Android) | Test için mobil uygulama | [Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent) |
+| EAS CLI | Production build için | `npm install -g eas-cli` |
+| Watchman (macOS) | Dosya izleme | `brew install watchman` |
+
+### Production Build İçin (Opsiyonel)
+
+| Yazılım | Platform | Açıklama |
+|---------|----------|----------|
+| Android Studio | Android | APK build için SDK gerekli |
+| Xcode | macOS | iOS build için (sadece Mac) |
+| Java JDK | Android | Android build için |
+
+---
+
+## Hızlı Başlangıç
+
+### 1. Projeyi Klonla
+```bash
+git clone https://github.com/oanblc/akaaltin.git
+cd akaaltin
+```
+
+### 2. Backend Kurulumu
 ```bash
 cd backend
 npm install
+```
 
-# .env dosyası oluştur
+**Gerekli npm paketleri (otomatik yüklenir):**
+- express
+- prisma / @prisma/client
+- socket.io
+- jsonwebtoken
+- bcryptjs
+- cors
+- helmet
+- express-rate-limit
+- axios
+- cheerio
+- dotenv
+
+**.env dosyası oluştur:**
+```bash
 cp .env.example .env
-# DATABASE_URL, JWT_SECRET, VPS_API_URL değerlerini düzenle
+```
 
-# Veritabanını oluştur
+**.env içeriği:**
+```env
+DATABASE_URL=mysql://root:password@localhost:3306/aka_kuyumculuk
+JWT_SECRET=your-super-secret-jwt-key-here
+PORT=5001
+NODE_ENV=development
+VPS_API_URL=http://37.148.208.13/api.php
+FALLBACK_API_URL=https://saglamoglualtin.com/component/tab-group/1
+CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+```
+
+**Veritabanını oluştur:**
+```bash
+# MySQL'de veritabanı oluştur
+mysql -u root -p -e "CREATE DATABASE aka_kuyumculuk CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# Prisma şemasını uygula
 npx prisma db push
 npx prisma generate
 
@@ -59,66 +121,79 @@ npx prisma generate
 node prisma/seed-campaigns.js
 node prisma/seed-article.js
 node prisma/seed-legal.js
-
-# Başlat
-npm run dev
 ```
 
-### 2. Frontend Kurulumu
+**Backend'i başlat:**
+```bash
+npm run dev
+# veya
+node src/index.js
+```
 
+### 3. Frontend Kurulumu
 ```bash
 cd frontend
 npm install
+```
 
-# .env.local dosyası oluştur
+**Gerekli npm paketleri (otomatik yüklenir):**
+- next
+- react / react-dom
+- typescript
+- tailwindcss
+- socket.io-client
+- axios
+- lucide-react
+- clsx
+- tailwind-merge
+
+**.env.local dosyası oluştur:**
+```bash
 echo "NEXT_PUBLIC_API_URL=http://localhost:5001" > .env.local
 echo "NEXT_PUBLIC_WS_URL=ws://localhost:5001" >> .env.local
+```
 
-# Başlat
+**Frontend'i başlat:**
+```bash
 npm run dev
 ```
 
-### 3. Mobile Kurulumu
-
+### 4. Mobile Kurulumu
 ```bash
 cd mobile
 npm install
+```
 
-# Expo başlat
+**Gerekli npm paketleri (otomatik yüklenir):**
+- expo (~52.0.0)
+- react-native
+- react / react-dom
+- typescript
+- @react-navigation/native
+- @react-navigation/native-stack
+- @react-navigation/bottom-tabs
+- expo-font
+- expo-splash-screen
+- expo-status-bar
+- expo-camera
+- expo-barcode-scanner
+- react-native-safe-area-context
+- react-native-screens
+- react-native-gesture-handler
+- react-native-reanimated
+- socket.io-client
+- axios
+- zustand
+- @react-native-async-storage/async-storage
+
+**Expo'yu başlat:**
+```bash
 npx expo start --clear
 ```
 
 ---
 
-## Mobile Uygulama Detayları
-
-### API Yapılandırması
-
-Mobile uygulama varsayılan olarak production sunucusuna bağlanır:
-
-**`mobile/src/services/api.ts`**
-```typescript
-const API_BASE_URL = 'http://37.148.214.162';
-```
-
-**`mobile/src/services/socket.ts`**
-```typescript
-const SOCKET_URL = 'http://37.148.214.162';
-```
-
-### Lokal Geliştirme İçin
-
-Eğer lokal backend'e bağlanmak istiyorsanız, dosyaları şu şekilde güncelleyin:
-
-```typescript
-// api.ts
-const API_BASE_URL = 'http://192.168.1.XXX:5001'; // Bilgisayarınızın IP adresi
-
-// socket.ts
-const SOCKET_URL = 'http://192.168.1.XXX:5001';
-```
-
-> **Not:** `localhost` veya `127.0.0.1` mobil cihazlarda çalışmaz. Bilgisayarınızın yerel ağ IP adresini kullanın.
+## Mobile Uygulama Çalıştırma
 
 ### Expo Komutları
 
@@ -126,8 +201,11 @@ const SOCKET_URL = 'http://192.168.1.XXX:5001';
 # Geliştirme sunucusu başlat
 npx expo start
 
-# Cache temizleyerek başlat
+# Cache temizleyerek başlat (önerilen)
 npx expo start --clear
+
+# Tunnel modu (ağ sorunlarında kullan)
+npx expo start --tunnel
 
 # Farklı port kullan
 npx expo start --port 19000
@@ -144,27 +222,94 @@ npx expo start --web
 
 ### Expo Go ile Test
 
-1. Telefonunuza [Expo Go](https://expo.dev/client) uygulamasını yükleyin
-2. `npx expo start` komutunu çalıştırın
-3. Terminalde görünen QR kodu okutun
-4. Uygulama telefonunuzda açılacak
+1. Telefonunuza **Expo Go** uygulamasını yükleyin
+2. Terminal'de `npx expo start --clear` çalıştırın
+3. QR kodu telefonunuzla okutun
+4. Uygulama açılacaktır
 
-### Production Build
+### Sık Karşılaşılan Sorunlar
+
+#### "Failed to download remote update" hatası
+```bash
+# Tunnel modu kullan
+npx expo start --tunnel --clear
+```
+
+#### Metro bundler bağlantı sorunu
+```bash
+# Cache temizle
+rm -rf node_modules/.cache
+npx expo start --clear
+```
+
+#### Telefon ve bilgisayar aynı ağda olmalı
+- Her ikisi de aynı WiFi'ye bağlı olmalı
+- Firewall Expo'ya izin vermeli
+
+---
+
+## API Yapılandırması
+
+### Production (Varsayılan)
+
+Mobile uygulama production sunucusuna bağlanır:
+
+**`mobile/src/services/api.ts`**
+```typescript
+const API_BASE_URL = 'http://37.148.214.162';
+```
+
+**`mobile/src/services/socket.ts`**
+```typescript
+const SOCKET_URL = 'http://37.148.214.162';
+```
+
+### Lokal Geliştirme
+
+Lokal backend'e bağlanmak için IP adresini güncelleyin:
+
+```typescript
+// Bilgisayarınızın yerel IP'sini kullanın (localhost çalışmaz)
+const API_BASE_URL = 'http://192.168.1.XXX:5001';
+const SOCKET_URL = 'http://192.168.1.XXX:5001';
+```
+
+IP adresinizi bulmak için:
+```bash
+# macOS / Linux
+ifconfig | grep "inet " | grep -v 127.0.0.1
+
+# Windows
+ipconfig | findstr /i "IPv4"
+```
+
+---
+
+## Production Build
+
+### Android APK
 
 ```bash
 # EAS CLI kur
 npm install -g eas-cli
 
-# EAS'a giriş yap
+# Expo hesabına giriş
 eas login
 
-# Android APK oluştur
+# Build başlat
 eas build --platform android --profile preview
+```
 
-# iOS IPA oluştur
+### iOS IPA
+
+```bash
+# Sadece macOS'ta çalışır
 eas build --platform ios --profile preview
+```
 
-# Her iki platform için
+### Her İki Platform
+
+```bash
 eas build --platform all --profile preview
 ```
 
@@ -172,82 +317,123 @@ eas build --platform all --profile preview
 
 ## API Endpoints
 
-### Public
-- `GET /api/prices/cached` - Güncel fiyatlar
-- `GET /api/prices/detail/:code` - Fiyat detayı
-- `GET /api/settings` - Site ayarları
-- `GET /api/campaigns/active` - Aktif kampanyalar
-- `GET /api/branches` - Şube listesi
-- `GET /api/articles` - Makaleler
-- `GET /api/legal/:slug` - Yasal sayfalar
+### Public Endpoints
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| GET | `/api/prices/cached` | Güncel fiyatlar |
+| GET | `/api/prices/detail/:code` | Fiyat detayı |
+| GET | `/api/prices/status` | Fiyat kaynağı durumu |
+| GET | `/api/settings` | Site ayarları |
+| GET | `/api/campaigns` | Kampanyalar |
+| GET | `/api/branches` | Şubeler |
+| GET | `/api/articles` | Makaleler |
+| GET | `/api/legal/:slug` | Yasal sayfalar |
 
-### Auth
-- `POST /api/auth/register` - Kayıt
-- `POST /api/auth/login` - Giriş
-- `GET /api/auth/verify` - Token doğrulama
+### Auth Endpoints
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| POST | `/api/auth/register` | Yeni kayıt |
+| POST | `/api/auth/login` | Giriş |
+| GET | `/api/auth/verify` | Token doğrula |
 
-### Protected (JWT gerekli)
-- `GET /api/customers/me` - Profil bilgileri
-- `GET /api/transactions/my` - İşlem geçmişi
-- `POST /api/alerts` - Fiyat alarmı oluştur
-- `POST /api/qrcodes/use` - QR kod kullan
+### Protected Endpoints (JWT Gerekli)
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| GET | `/api/customers/me` | Profil bilgileri |
+| PUT | `/api/customers/me` | Profil güncelle |
+| GET | `/api/transactions/my` | İşlem geçmişi |
+| GET | `/api/alerts` | Fiyat alarmları |
+| POST | `/api/alerts` | Alarm oluştur |
+| DELETE | `/api/alerts/:id` | Alarm sil |
+| POST | `/api/qrcodes/use` | QR kod kullan |
 
 ---
 
 ## WebSocket Events
 
 ```javascript
-// Bağlantı
-socket.on('connect', () => {});
-socket.on('disconnect', () => {});
+import { io } from 'socket.io-client';
 
-// Fiyat güncellemeleri
-socket.on('prices', (prices) => {
-  // Tüm fiyatlar array olarak gelir
+const socket = io('http://37.148.214.162');
+
+// Bağlantı
+socket.on('connect', () => {
+  console.log('Bağlandı');
 });
 
+// Tüm fiyatlar (ilk bağlantıda)
+socket.on('prices', (prices) => {
+  console.log('Fiyatlar:', prices);
+});
+
+// Tek fiyat güncellemesi
 socket.on('priceUpdate', (price) => {
-  // Tek fiyat güncellemesi
+  console.log('Güncelleme:', price);
+});
+
+// Bağlantı koptu
+socket.on('disconnect', () => {
+  console.log('Bağlantı koptu');
 });
 ```
 
 ---
 
-## Ortam Değişkenleri
+## Veritabanı Şeması
 
-### Backend (.env)
-```env
-DATABASE_URL=mysql://user:pass@localhost:3306/dbname
-JWT_SECRET=your-secret-key
-PORT=5001
-NODE_ENV=development
-VPS_API_URL=http://fiyat-api-url/api.php
-FALLBACK_API_URL=https://yedek-kaynak.com
-CORS_ORIGINS=http://localhost:3000
-```
-
-### Frontend (.env.local)
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5001
-NEXT_PUBLIC_WS_URL=ws://localhost:5001
-```
+### Ana Tablolar
+- `User` - Admin kullanıcıları
+- `Customer` - Mobil uygulama müşterileri
+- `Settings` - Site ayarları (key-value)
+- `CustomPrice` - Fiyat tanımları
+- `CachedPrice` - Anlık fiyat cache
+- `SourcePrice` - Kaynak fiyatları
+- `PriceSourceConfig` - Fiyat kaynağı ayarları
+- `Transaction` - Puan işlemleri
+- `PriceAlert` - Fiyat alarmları
+- `Campaign` - Kampanyalar
+- `Article` - Makaleler
+- `Branch` - Şubeler
+- `LegalPage` - Yasal sayfalar
+- `Category` - Puan kategorileri
+- `QRCode` - QR kodlar
+- `FamilyCard` - Aile kartları
 
 ---
 
 ## Production Deployment
 
-Sunucu kurulumu için `deploy/` klasöründeki scriptleri kullanabilirsiniz:
+### Sunucu Gereksinimleri
+- Ubuntu 20.04+
+- 2GB RAM minimum
+- Node.js 20+
+- MySQL 8+
+- Nginx
+- PM2
+
+### Otomatik Kurulum
 
 ```bash
 # Sunucuya bağlan
-ssh root@sunucu-ip
+ssh root@your-server-ip
+
+# Repo'yu klonla
+git clone https://github.com/oanblc/akaaltin.git
+cd akaaltin
 
 # Setup script'i çalıştır
+cd deploy
 bash setup-server.sh
-
-# Uygulama kurulumu
 bash install-app.sh
 ```
+
+---
+
+## Proje Durumu
+
+- **Web:** http://37.148.214.162
+- **API:** http://37.148.214.162/api
+- **WebSocket:** ws://37.148.214.162
 
 ---
 
@@ -257,6 +443,6 @@ Bu proje özel kullanım içindir. Tüm hakları saklıdır.
 
 ## İletişim
 
-Aka Kuyumculuk - Adana, Türkiye
-- Web: http://37.148.214.162
+**Aka Kuyumculuk** - Adana, Türkiye
 - Tel: 0322 233 55 55
+- Instagram: [@akakuyumcu](https://instagram.com/akakuyumcu)
