@@ -34,286 +34,304 @@ AkaKuyumculuk/
 
 ---
 
-## Gerekli Bağımlılıklar
+# 🍎 MacBook Kurulum Rehberi (Sıfırdan)
 
-### Sistem Gereksinimleri
+Bu bölüm MacBook'ta projeyi sıfırdan çalıştırmak için adım adım talimatlar içerir.
 
-| Yazılım | Minimum Versiyon | İndirme Linki |
-|---------|------------------|---------------|
-| Node.js | 18.0+ | https://nodejs.org |
-| npm | 9.0+ | Node.js ile birlikte gelir |
-| MySQL | 8.0+ | https://dev.mysql.com/downloads/ |
-| Git | 2.30+ | https://git-scm.com |
+## Adım 1: Homebrew Kurulumu
 
-### Mobile Geliştirme İçin Ek Gereksinimler
+Homebrew macOS için paket yöneticisidir. Terminal'i açın ve çalıştırın:
 
-| Yazılım | Açıklama | İndirme Linki |
-|---------|----------|---------------|
-| Expo CLI | React Native geliştirme | `npm install -g expo-cli` |
-| Expo Go (iOS) | Test için mobil uygulama | [App Store](https://apps.apple.com/app/expo-go/id982107779) |
-| Expo Go (Android) | Test için mobil uygulama | [Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent) |
-| EAS CLI | Production build için | `npm install -g eas-cli` |
-| Watchman (macOS) | Dosya izleme | `brew install watchman` |
-
-### Production Build İçin (Opsiyonel)
-
-| Yazılım | Platform | Açıklama |
-|---------|----------|----------|
-| Android Studio | Android | APK build için SDK gerekli |
-| Xcode | macOS | iOS build için (sadece Mac) |
-| Java JDK | Android | Android build için |
-
----
-
-## Hızlı Başlangıç
-
-### 1. Projeyi Klonla
 ```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Kurulum bittikten sonra Terminal'i kapatıp yeniden açın.
+
+## Adım 2: Gerekli Yazılımları Kur
+
+```bash
+# Node.js (v20 LTS önerilir)
+brew install node@20
+
+# Node.js'i PATH'e ekle (zsh için)
+echo 'export PATH="/opt/homebrew/opt/node@20/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# Versiyonu kontrol et
+node --version  # v20.x.x olmalı
+npm --version   # 10.x.x olmalı
+
+# Git (genellikle macOS'ta zaten yüklü)
+brew install git
+
+# Watchman (Expo için gerekli - dosya değişikliklerini izler)
+brew install watchman
+
+# MySQL (sadece lokal geliştirme için gerekli)
+brew install mysql
+brew services start mysql
+```
+
+## Adım 3: Expo CLI Kurulumu
+
+```bash
+# Global Expo CLI
+npm install -g expo-cli
+
+# EAS CLI (production build için)
+npm install -g eas-cli
+```
+
+## Adım 4: Projeyi Klonla
+
+```bash
+# Ana klasöre git
+cd ~/Desktop
+
+# Projeyi klonla
 git clone https://github.com/oanblc/akaaltin.git
+
+# Proje klasörüne gir
 cd akaaltin
 ```
 
-### 2. Backend Kurulumu
+## Adım 5: Mobil Uygulamayı Başlat
+
+Mobil uygulama production sunucusuna (37.148.214.162) bağlanır, bu yüzden backend kurmanıza gerek yok.
+
 ```bash
-cd backend
+# Mobile klasörüne git
+cd mobile
+
+# Bağımlılıkları yükle
 npm install
+
+# Expo'yu başlat (önerilen yöntem)
+npx expo start --tunnel --clear
 ```
 
-**Gerekli npm paketleri (otomatik yüklenir):**
-- express
-- prisma / @prisma/client
-- socket.io
-- jsonwebtoken
-- bcryptjs
-- cors
-- helmet
-- express-rate-limit
-- axios
-- cheerio
-- dotenv
+### QR Kod ile Test
 
-**.env dosyası oluştur:**
+1. iPhone'unuza **Expo Go** uygulamasını App Store'dan indirin
+2. Terminal'de QR kod göründüğünde iPhone kamerasıyla okutun
+3. Expo Go uygulaması otomatik açılacak
+
+### iOS Simülatörde Test (Xcode gerekli)
+
 ```bash
-cp .env.example .env
+# Xcode yüklüyse
+npx expo start --ios
 ```
 
-**.env içeriği:**
-```env
-DATABASE_URL=mysql://root:password@localhost:3306/aka_kuyumculuk
-JWT_SECRET=your-super-secret-jwt-key-here
+---
+
+# 🔧 Lokal Geliştirme (Backend + Frontend)
+
+Eğer backend ve frontend'i de lokalde çalıştırmak istiyorsanız:
+
+## Backend Kurulumu
+
+```bash
+# Backend klasörüne git
+cd backend
+
+# Bağımlılıkları yükle
+npm install
+
+# .env dosyası oluştur
+cat > .env << 'EOF'
+DATABASE_URL=mysql://root:@localhost:3306/aka_kuyumculuk
+JWT_SECRET=your-super-secret-jwt-key-here-change-this
 PORT=5001
 NODE_ENV=development
 VPS_API_URL=http://37.148.208.13/api.php
 FALLBACK_API_URL=https://saglamoglualtin.com/component/tab-group/1
 CORS_ORIGINS=http://localhost:3000,http://localhost:3001
-```
+EOF
 
-**Veritabanını oluştur:**
-```bash
-# MySQL'de veritabanı oluştur
-mysql -u root -p -e "CREATE DATABASE aka_kuyumculuk CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+# MySQL veritabanı oluştur
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS aka_kuyumculuk CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 # Prisma şemasını uygula
 npx prisma db push
 npx prisma generate
 
-# Seed verilerini yükle (opsiyonel)
-node prisma/seed-campaigns.js
-node prisma/seed-article.js
-node prisma/seed-legal.js
-```
-
-**Backend'i başlat:**
-```bash
+# Backend'i başlat
 npm run dev
-# veya
-node src/index.js
 ```
 
-### 3. Frontend Kurulumu
+Backend http://localhost:5001 adresinde çalışacak.
+
+## Frontend Kurulumu
+
 ```bash
+# Frontend klasörüne git
 cd frontend
+
+# Bağımlılıkları yükle
 npm install
-```
 
-**Gerekli npm paketleri (otomatik yüklenir):**
-- next
-- react / react-dom
-- typescript
-- tailwindcss
-- socket.io-client
-- axios
-- lucide-react
-- clsx
-- tailwind-merge
+# .env.local dosyası oluştur
+cat > .env.local << 'EOF'
+NEXT_PUBLIC_API_URL=http://localhost:5001
+NEXT_PUBLIC_WS_URL=ws://localhost:5001
+EOF
 
-**.env.local dosyası oluştur:**
-```bash
-echo "NEXT_PUBLIC_API_URL=http://localhost:5001" > .env.local
-echo "NEXT_PUBLIC_WS_URL=ws://localhost:5001" >> .env.local
-```
-
-**Frontend'i başlat:**
-```bash
+# Frontend'i başlat
 npm run dev
 ```
 
-### 4. Mobile Kurulumu
+Frontend http://localhost:3000 adresinde çalışacak.
+
+## Mobile'ı Lokal Backend'e Bağla
+
+Lokal backend kullanmak için mobile/src/services/ dosyalarını düzenleyin:
+
+1. IP adresinizi bulun:
 ```bash
-cd mobile
-npm install
+ifconfig | grep "inet " | grep -v 127.0.0.1
+# Örnek çıktı: inet 192.168.1.42
 ```
 
-**Gerekli npm paketleri (otomatik yüklenir):**
-- expo (~52.0.0)
-- react-native
-- react / react-dom
-- typescript
-- @react-navigation/native
-- @react-navigation/native-stack
-- @react-navigation/bottom-tabs
-- expo-font
-- expo-splash-screen
-- expo-status-bar
-- expo-camera
-- expo-barcode-scanner
-- react-native-safe-area-context
-- react-native-screens
-- react-native-gesture-handler
-- react-native-reanimated
-- socket.io-client
-- axios
-- zustand
-- @react-native-async-storage/async-storage
+2. `mobile/src/services/api.ts` dosyasını düzenleyin:
+```typescript
+const API_BASE_URL = 'http://192.168.1.42:5001';  // Kendi IP'nizi yazın
+```
 
-**Expo'yu başlat:**
-```bash
-npx expo start --clear
+3. `mobile/src/services/socket.ts` dosyasını düzenleyin:
+```typescript
+const SOCKET_URL = 'http://192.168.1.42:5001';  // Kendi IP'nizi yazın
 ```
 
 ---
 
-## Mobile Uygulama Çalıştırma
+# ⚠️ Sık Karşılaşılan Hatalar ve Çözümleri
 
-### Expo Komutları
+## "Failed to download remote update" Hatası
 
-```bash
-# Geliştirme sunucusu başlat
-npx expo start
+Bu hata genellikle ağ bağlantısı sorunlarından kaynaklanır.
 
-# Cache temizleyerek başlat (önerilen)
-npx expo start --clear
-
-# Tunnel modu (ağ sorunlarında kullan)
-npx expo start --tunnel
-
-# Farklı port kullan
-npx expo start --port 19000
-
-# Android emülatörde aç
-npx expo start --android
-
-# iOS simülatörde aç (sadece macOS)
-npx expo start --ios
-
-# Web tarayıcıda aç
-npx expo start --web
-```
-
-### Expo Go ile Test
-
-1. Telefonunuza **Expo Go** uygulamasını yükleyin
-2. Terminal'de `npx expo start --clear` çalıştırın
-3. QR kodu telefonunuzla okutun
-4. Uygulama açılacaktır
-
-### Sık Karşılaşılan Sorunlar
-
-#### "Failed to download remote update" hatası
+**Çözüm:**
 ```bash
 # Tunnel modu kullan
 npx expo start --tunnel --clear
 ```
 
-#### Metro bundler bağlantı sorunu
+## "Network request failed" Hatası
+
+Telefon ve bilgisayar aynı ağda değil veya firewall engelliyor.
+
+**Çözüm:**
+1. Her iki cihazın da aynı WiFi'ye bağlı olduğundan emin olun
+2. Tunnel modu kullanın: `npx expo start --tunnel`
+
+## Metro Bundler Bağlantı Sorunu
+
+**Çözüm:**
 ```bash
-# Cache temizle
+# Tüm cache'leri temizle
 rm -rf node_modules/.cache
+rm -rf .expo
 npx expo start --clear
 ```
 
-#### Telefon ve bilgisayar aynı ağda olmalı
-- Her ikisi de aynı WiFi'ye bağlı olmalı
-- Firewall Expo'ya izin vermeli
+## "Unable to resolve module" Hatası
 
----
-
-## API Yapılandırması
-
-### Production (Varsayılan)
-
-Mobile uygulama production sunucusuna bağlanır:
-
-**`mobile/src/services/api.ts`**
-```typescript
-const API_BASE_URL = 'http://37.148.214.162';
-```
-
-**`mobile/src/services/socket.ts`**
-```typescript
-const SOCKET_URL = 'http://37.148.214.162';
-```
-
-### Lokal Geliştirme
-
-Lokal backend'e bağlanmak için IP adresini güncelleyin:
-
-```typescript
-// Bilgisayarınızın yerel IP'sini kullanın (localhost çalışmaz)
-const API_BASE_URL = 'http://192.168.1.XXX:5001';
-const SOCKET_URL = 'http://192.168.1.XXX:5001';
-```
-
-IP adresinizi bulmak için:
+**Çözüm:**
 ```bash
-# macOS / Linux
-ifconfig | grep "inet " | grep -v 127.0.0.1
+# node_modules'u sil ve yeniden yükle
+rm -rf node_modules
+rm -rf package-lock.json
+npm install
+npx expo start --clear
+```
 
-# Windows
-ipconfig | findstr /i "IPv4"
+## Watchman Hatası
+
+**Çözüm:**
+```bash
+# Watchman'ı yeniden başlat
+watchman watch-del-all
+watchman shutdown-server
+```
+
+## Port Çakışması
+
+**Çözüm:**
+```bash
+# Farklı port kullan
+npx expo start --port 19001
 ```
 
 ---
 
-## Production Build
-
-### Android APK
+# 📱 Expo Komutları Referansı
 
 ```bash
-# EAS CLI kur
-npm install -g eas-cli
+# Geliştirme sunucusu başlat
+npx expo start
 
-# Expo hesabına giriş
+# Cache temizleyerek başlat (sorun çözümü için)
+npx expo start --clear
+
+# Tunnel modu (ağ sorunlarında)
+npx expo start --tunnel
+
+# Tunnel + cache temizle (en güvenli)
+npx expo start --tunnel --clear
+
+# iOS simülatörde aç
+npx expo start --ios
+
+# Android emülatörde aç
+npx expo start --android
+
+# Web tarayıcıda aç
+npx expo start --web
+
+# Farklı port kullan
+npx expo start --port 19001
+```
+
+---
+
+# 🏗️ Production Build
+
+## Android APK
+
+```bash
+# EAS'a giriş yap
 eas login
 
-# Build başlat
+# APK build başlat
 eas build --platform android --profile preview
+
+# Play Store için AAB
+eas build --platform android --profile production
 ```
 
-### iOS IPA
+## iOS IPA
 
 ```bash
-# Sadece macOS'ta çalışır
+# Apple Developer hesabı gerekli
 eas build --platform ios --profile preview
-```
 
-### Her İki Platform
-
-```bash
-eas build --platform all --profile preview
+# App Store için
+eas build --platform ios --profile production
 ```
 
 ---
+
+# 📡 API Yapılandırması
+
+## Production Sunucusu (Varsayılan)
+
+Uygulama şu anda production sunucusuna bağlı:
+
+- **API:** http://37.148.214.162/api
+- **WebSocket:** ws://37.148.214.162
+- **Web:** http://37.148.214.162
 
 ## API Endpoints
 
@@ -349,39 +367,25 @@ eas build --platform all --profile preview
 
 ---
 
-## WebSocket Events
+# 🗄️ Veritabanı
 
-```javascript
-import { io } from 'socket.io-client';
+## Prisma Komutları
 
-const socket = io('http://37.148.214.162');
+```bash
+# Şemayı veritabanına uygula
+npx prisma db push
 
-// Bağlantı
-socket.on('connect', () => {
-  console.log('Bağlandı');
-});
+# Prisma Client oluştur
+npx prisma generate
 
-// Tüm fiyatlar (ilk bağlantıda)
-socket.on('prices', (prices) => {
-  console.log('Fiyatlar:', prices);
-});
+# Veritabanını görüntüle (GUI)
+npx prisma studio
 
-// Tek fiyat güncellemesi
-socket.on('priceUpdate', (price) => {
-  console.log('Güncelleme:', price);
-});
-
-// Bağlantı koptu
-socket.on('disconnect', () => {
-  console.log('Bağlantı koptu');
-});
+# Migration oluştur
+npx prisma migrate dev --name migration_name
 ```
 
----
-
-## Veritabanı Şeması
-
-### Ana Tablolar
+## Ana Tablolar
 - `User` - Admin kullanıcıları
 - `Customer` - Mobil uygulama müşterileri
 - `Settings` - Site ayarları (key-value)
@@ -401,9 +405,9 @@ socket.on('disconnect', () => {
 
 ---
 
-## Production Deployment
+# 🚀 Production Deployment (Sunucu)
 
-### Sunucu Gereksinimleri
+## Sunucu Gereksinimleri
 - Ubuntu 20.04+
 - 2GB RAM minimum
 - Node.js 20+
@@ -411,7 +415,7 @@ socket.on('disconnect', () => {
 - Nginx
 - PM2
 
-### Otomatik Kurulum
+## Otomatik Kurulum
 
 ```bash
 # Sunucuya bağlan
@@ -429,11 +433,36 @@ bash install-app.sh
 
 ---
 
-## Proje Durumu
+# 🔗 Canlı Linkler
 
 - **Web:** http://37.148.214.162
 - **API:** http://37.148.214.162/api
 - **WebSocket:** ws://37.148.214.162
+- **GitHub:** https://github.com/oanblc/akaaltin
+
+---
+
+# 📋 Hızlı Başlangıç Özeti (MacBook)
+
+```bash
+# 1. Homebrew kur (yoksa)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# 2. Node.js ve Watchman kur
+brew install node@20 watchman
+
+# 3. Projeyi klonla
+git clone https://github.com/oanblc/akaaltin.git
+cd akaaltin/mobile
+
+# 4. Bağımlılıkları yükle
+npm install
+
+# 5. Expo'yu başlat
+npx expo start --tunnel --clear
+
+# 6. Telefondan QR kodu okut (Expo Go ile)
+```
 
 ---
 
